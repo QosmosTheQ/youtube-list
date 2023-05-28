@@ -23,7 +23,12 @@ class Program
 
         while (true)
         {
-            Console.WriteLine("Press '1' to add a channel,\n'2' to view the channel list,\n'3' to remove a channel,\n'4' to open a channel URL,\nor '0' to exit the program.");
+                        Console.WriteLine("Press '1' to add a channel\n" +
+                              "Press '2' to view the channel list\n" +
+                              "Press '3' to remove a channel\n" +
+                              "Press '4' to open a channel URL\n" +
+                              "Press '5' to edit a channel\n" +
+                              "Press '0' to exit the program.");
             string choice = Console.ReadLine();
 
             if (choice == "1")
@@ -89,6 +94,20 @@ class Program
                     Console.WriteLine("Invalid channel number!");
                 }
             }
+            else if (choice == "5")
+            {
+                Console.WriteLine("Enter the channel number to edit:");
+                int channelNumber;
+                if (int.TryParse(Console.ReadLine(), out channelNumber))
+                {
+                    EditChannel(channelNumber);
+                    SaveChannelsToFile(); // Save the channels to file
+                }
+                else
+                {
+                    Console.WriteLine("Invalid channel number!");
+                }
+            }
             else if (choice == "0")
             {
                 break; // Exit the program
@@ -120,6 +139,41 @@ class Program
             }
         }
         return false;
+    }
+
+    static void EditChannel(int channelNumber)
+    {
+        Channel channelToEdit = channelList.FirstOrDefault(c => c.Number == channelNumber);
+        if (channelToEdit != null)
+        {
+            Console.WriteLine($"Editing Channel - {channelToEdit.Name}");
+            Console.WriteLine("Enter new channel name (leave empty to keep current name):");
+            string newName = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newName))
+            {
+                channelToEdit.Name = newName;
+            }
+
+            Console.WriteLine("Enter new channel URL (leave empty to keep current URL):");
+            string newUrl = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newUrl))
+            {
+                channelToEdit.Url = newUrl;
+            }
+
+            Console.WriteLine("Enter new description for the channel (leave empty to keep current description):");
+            string newDescription = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newDescription))
+            {
+                channelToEdit.Description = newDescription;
+            }
+
+            Console.WriteLine("Channel edited successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Channel not found!");
+        }
     }
 
     static void ShowChannelList()
