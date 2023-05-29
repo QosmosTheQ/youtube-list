@@ -15,7 +15,7 @@ class Channel
 class Program
 {
     static List<Channel> channelList = new List<Channel>(); // Channel list
-    static string filePath = "channels.txt"; // File path to save the channel list
+    static string filePath = "channels.csv"; // File path to save the channel list
 
     static void Main(string[] args)
     {
@@ -23,98 +23,100 @@ class Program
 
         while (true)
         {
-                        Console.WriteLine("Press '1' to add a channel\n" +
+            Console.WriteLine("Press '1' to add a channel\n" +
                               "Press '2' to view the channel list\n" +
                               "Press '3' to remove a channel\n" +
                               "Press '4' to open a channel URL\n" +
                               "Press '5' to edit a channel\n" +
                               "Press '0' to exit the program.");
+
             string choice = Console.ReadLine();
 
-            if (choice == "1")
+            switch (choice)
             {
-                Console.WriteLine("Enter the channel name:");
-                string name = Console.ReadLine();
+                case "1":
+                    Console.WriteLine("Enter the channel name:");
+                    string name = Console.ReadLine();
 
-                Console.WriteLine("Enter the channel URL:");
-                string url = Console.ReadLine();
+                    Console.WriteLine("Enter the channel URL:");
+                    string url = Console.ReadLine();
 
-                Console.WriteLine("Enter a description for the channel:");
-                string description = Console.ReadLine();
+                    Console.WriteLine("Enter a description for the channel:");
+                    string description = Console.ReadLine();
 
-                Channel channel = new Channel
-                {
-                    Number = GetNextChannelNumber(),
-                    Name = name,
-                    Url = url,
-                    Description = description
-                };
-
-                AddChannel(channel);
-                Console.WriteLine("Channel added successfully!");
-
-                SaveChannelsToFile(); // Save the channels to file
-            }
-            else if (choice == "2")
-            {
-                Console.WriteLine("Saved channels:");
-                ShowChannelList();
-            }
-            else if (choice == "3")
-            {
-                Console.WriteLine("Enter the channel number to remove:");
-                int channelNumber;
-                if (int.TryParse(Console.ReadLine(), out channelNumber))
-                {
-                    if (RemoveChannel(channelNumber))
+                    Channel channel = new Channel
                     {
-                        Console.WriteLine("Channel removed successfully!");
+                        Number = GetNextChannelNumber(),
+                        Name = name,
+                        Url = url,
+                        Description = description
+                    };
+
+                    AddChannel(channel);
+                    Console.WriteLine("Channel added successfully!");
+
+                    SaveChannelsToFile(); // Save the channels to file
+                    break;
+
+                case "2":
+                    Console.WriteLine("Saved channels:");
+                    ShowChannelList();
+                    break;
+
+                case "3":
+                    Console.WriteLine("Enter the channel number to remove:");
+                    int channelNumber;
+                    if (int.TryParse(Console.ReadLine(), out channelNumber))
+                    {
+                        if (RemoveChannel(channelNumber))
+                        {
+                            Console.WriteLine("Channel removed successfully!");
+                            SaveChannelsToFile(); // Save the channels to file
+                        }
+                        else
+                        {
+                            Console.WriteLine("Channel not found!");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid channel number!");
+                    }
+                    break;
+
+                case "4":
+                    Console.WriteLine("Enter the channel number to open:");
+                    int channelNumberToOpen;
+                    if (int.TryParse(Console.ReadLine(), out channelNumberToOpen))
+                    {
+                        OpenChannelURL(channelNumberToOpen);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid channel number!");
+                    }
+                    break;
+
+                case "5":
+                    Console.WriteLine("Enter the channel number to edit:");
+                    int channelNumberToEdit;
+                    if (int.TryParse(Console.ReadLine(), out channelNumberToEdit))
+                    {
+                        EditChannel(channelNumberToEdit);
                         SaveChannelsToFile(); // Save the channels to file
                     }
                     else
                     {
-                        Console.WriteLine("Channel not found!");
+                        Console.WriteLine("Invalid channel number!");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid channel number!");
-                }
-            }
-            else if (choice == "4")
-            {
-                Console.WriteLine("Enter the channel number to open:");
-                int channelNumber;
-                if (int.TryParse(Console.ReadLine(), out channelNumber))
-                {
-                    OpenChannelURL(channelNumber);
-                }
-                else
-                {
-                    Console.WriteLine("Invalid channel number!");
-                }
-            }
-            else if (choice == "5")
-            {
-                Console.WriteLine("Enter the channel number to edit:");
-                int channelNumber;
-                if (int.TryParse(Console.ReadLine(), out channelNumber))
-                {
-                    EditChannel(channelNumber);
-                    SaveChannelsToFile(); // Save the channels to file
-                }
-                else
-                {
-                    Console.WriteLine("Invalid channel number!");
-                }
-            }
-            else if (choice == "0")
-            {
-                break; // Exit the program
-            }
-            else
-            {
-                Console.WriteLine("Invalid choice!");
+                    break;
+
+                case "0":
+                    return; // Exit the program
+
+                default:
+                    Console.WriteLine("Invalid choice!");
+                    break;
             }
         }
     }
@@ -129,10 +131,9 @@ class Program
         Channel channelToRemove = channelList.FirstOrDefault(c => c.Number == channelNumber);
         if (channelToRemove != null)
         {
-            Console.WriteLine($"Are you sure you want to remove the channel? (Y/N) - {channelToRemove.Name}");
-            string confirm = Console.ReadLine();
-
-            if (confirm.Equals("Y", StringComparison.OrdinalIgnoreCase))
+            Console.WriteLine($"Are you sure you want to remove Channel {channelToRemove.Name}? (Y/N)");
+            string confirmation = Console.ReadLine();
+            if (confirmation.ToUpper() == "Y")
             {
                 channelList.Remove(channelToRemove);
                 return true;
@@ -141,56 +142,17 @@ class Program
         return false;
     }
 
-    static void EditChannel(int channelNumber)
-    {
-        Channel channelToEdit = channelList.FirstOrDefault(c => c.Number == channelNumber);
-        if (channelToEdit != null)
-        {
-            Console.WriteLine($"Editing Channel - {channelToEdit.Name}");
-            Console.WriteLine("Enter new channel name (leave empty to keep current name):");
-            string newName = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(newName))
-            {
-                channelToEdit.Name = newName;
-            }
-
-            Console.WriteLine("Enter new channel URL (leave empty to keep current URL):");
-            string newUrl = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(newUrl))
-            {
-                channelToEdit.Url = newUrl;
-            }
-
-            Console.WriteLine("Enter new description for the channel (leave empty to keep current description):");
-            string newDescription = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(newDescription))
-            {
-                channelToEdit.Description = newDescription;
-            }
-
-            Console.WriteLine("Channel edited successfully!");
-        }
-        else
-        {
-            Console.WriteLine("Channel not found!");
-        }
-    }
-
     static void ShowChannelList()
     {
-        Console.WriteLine("Channel List");
-        Console.WriteLine("---------------------------------------");
-
         foreach (Channel channel in channelList)
         {
-            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("---------------------------");
             Console.WriteLine($"Channel Number: {channel.Number}");
             Console.WriteLine($"Name: {channel.Name}");
             Console.WriteLine($"URL: {channel.Url}");
             Console.WriteLine($"Description: {channel.Description}");
+            Console.WriteLine("---------------------------");
         }
-
-        Console.WriteLine("---------------------------------------");
     }
 
     static void OpenChannelURL(int channelNumber)
@@ -198,13 +160,7 @@ class Program
         Channel channelToOpen = channelList.FirstOrDefault(c => c.Number == channelNumber);
         if (channelToOpen != null)
         {
-            Console.WriteLine($"Are you sure you want to open the channel? (Y/N) - {channelToOpen.Name}");
-            string confirm = Console.ReadLine();
-
-            if (confirm.Equals("Y", StringComparison.OrdinalIgnoreCase))
-            {
-                Process.Start(channelToOpen.Url);
-            }
+            Process.Start(channelToOpen.Url);
         }
         else
         {
@@ -212,14 +168,54 @@ class Program
         }
     }
 
-    static void SaveChannelsToFile()
+    static void EditChannel(int channelNumber)
+{
+    Channel channelToEdit = channelList.FirstOrDefault(c => c.Number == channelNumber);
+    if (channelToEdit != null)
     {
-        using (StreamWriter writer = new StreamWriter(filePath))
+        Console.WriteLine($"Editing Channel {channelToEdit.Name}:");
+        Console.WriteLine("Enter the new channel name (leave empty to keep the same):");
+        string newName = Console.ReadLine();
+
+        Console.WriteLine("Enter the new channel URL (leave empty to keep the same):");
+        string newUrl = Console.ReadLine();
+
+        Console.WriteLine("Enter the new description for the channel (leave empty to keep the same):");
+        string newDescription = Console.ReadLine();
+
+        if (!string.IsNullOrEmpty(newName))
         {
-            foreach (Channel channel in channelList)
-            {
-                writer.WriteLine($"{channel.Number},{channel.Name},{channel.Url},{channel.Description}");
-            }
+            channelToEdit.Name = newName;
+        }
+
+        if (!string.IsNullOrEmpty(newUrl))
+        {
+            channelToEdit.Url = newUrl;
+        }
+
+        if (!string.IsNullOrEmpty(newDescription))
+        {
+            channelToEdit.Description = newDescription;
+        }
+
+        Console.WriteLine("Channel edited successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Channel not found!");
+    }
+}
+
+
+    static int GetNextChannelNumber()
+    {
+        if (channelList.Count > 0)
+        {
+            return channelList.Max(c => c.Number) + 1;
+        }
+        else
+        {
+            return 1;
         }
     }
 
@@ -227,31 +223,54 @@ class Program
     {
         if (File.Exists(filePath))
         {
-            channelList.Clear();
-
-            string[] lines = File.ReadAllLines(filePath);
-            foreach (string line in lines)
+            try
             {
-                string[] parts = line.Split(',');
+                string[] lines = File.ReadAllLines(filePath);
 
-                if (parts.Length == 4 && int.TryParse(parts[0], out int channelNumber))
+                foreach (string line in lines)
                 {
-                    Channel channel = new Channel
+                    string[] parts = line.Split(',');
+                    if (parts.Length == 4)
                     {
-                        Number = channelNumber,
-                        Name = parts[1],
-                        Url = parts[2],
-                        Description = parts[3]
-                    };
+                        int number = int.Parse(parts[0]);
+                        string name = parts[1];
+                        string url = parts[2];
+                        string description = parts[3];
 
-                    channelList.Add(channel);
+                        Channel channel = new Channel
+                        {
+                            Number = number,
+                            Name = name,
+                            Url = url,
+                            Description = description
+                        };
+
+                        channelList.Add(channel);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred while loading channels: {ex.Message}");
             }
         }
     }
 
-    static int GetNextChannelNumber()
+    static void SaveChannelsToFile()
     {
-        return channelList.Count + 1;
+        try
+        {
+            List<string> lines = new List<string>();
+            foreach (Channel channel in channelList)
+            {
+                string line = $"{channel.Number},{channel.Name},{channel.Url},{channel.Description}";
+                lines.Add(line);
+            }
+            File.WriteAllLines(filePath, lines);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error occurred while saving channels: {ex.Message}");
+        }
     }
 }
